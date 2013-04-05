@@ -4,133 +4,78 @@ import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.tiled.TiledMap;
 
-public class CombatPrototype extends BasicGame 
+
+public class CombatPrototype extends BasicGame
 {
-	public static TiledMap map;
-	public static int tileSize = 32;
-	public static boolean[][] collideTiles;
+	public static final int tileSize = 32;
+	public static final int screenW = 1280; public static final int screenH = 720;
+	protected Map initialMap;
+	protected Player player;
 	
-	public static final int SCREEN_WIDTH = 1024;
-	public static final int SCREEN_HEIGHT = 576;
-	public float worldX;
-	public float worldY;
-
-	private static Player player;
-	private static Image playerImage = null;
-	public final float playerSpeed = (float) 0.2;
-
 	
-	public CombatPrototype() 
+	/**********************************************
+	 * Main method for slick, doesn't do all that much. Lists project name, initializes fields.
+	 */
+	public CombatPrototype()
 	{
-		super("CombatPrototype");
+		super ("A minecraft, minicraft, zelda ripoff (sorry mojang/nintendo plz no sue)");
 	}
 
 	
-	@Override
-	public void init(GameContainer container) throws SlickException 
+	/**********************************************
+	 * Initialization method for Slick. Allocates memory, creates objects.
+	 * Run at the launch of the game and when manually called in the game.
+	 */
+	public void init (GameContainer container) throws SlickException
 	{
-		//world initialization
-		worldY = SCREEN_HEIGHT / 2;
-		worldX = SCREEN_WIDTH / 2;
+		initialMap = new Map ("res/combatprototype/testLevel.tmx");
 		
-		map = new TiledMap("res/combatprototype/level.tmx", "res/combatprototype");
-		collideTiles = new boolean[map.getWidth()][map.getHeight()];
+		player = new Player (initialMap.getMapWidth() / 2, initialMap.getMapHeight() / 2);
+	
+		player.setAnimation ("res/combatprototype/link/link_normal_noshield/link_left.png", "left");
+		player.setAnimation ("res/combatprototype/link/link_normal_noshield/link_right.png", "right");
+		player.setAnimation ("res/combatprototype/link/link_normal_noshield/link_down.png", "down");
+		player.setAnimation ("res/combatprototype/link/link_normal_noshield/link_up.png", "up");
+	}
+	
+	
+	/**********************************************
+	 * Update method for Slick. Runs every frame.
+	 * Listens for keypresses; Runs these internal methods.
+	 */
+	public void update (GameContainer container, int delta) throws SlickException
+	{
+		player.movementHandler (container, delta, initialMap);
+	}
+	
+	
+	/**********************************************
+	 * Render method for Slick. Runs every frame.
+	 * Displays images, the map, and other information to the game window
+	 */
+	public void render (GameContainer container, Graphics g) throws SlickException
+	{
+		initialMap.mapRender (container, g, player.getCameraX(), player.getCameraY());
 		
-		//player initialization
-		player = new Player (map.getWidth() * tileSize / 2, map.getHeight() * tileSize / 2);
-		playerImage = new Image ("res/combatprototype/link_front.png");
-
-		//solidity
-		for (int i = 0; i < map.getWidth(); i++)
-		{
-			for (int j = 0; j < map.getHeight(); j++) 
-			{
-				int tileID = map.getTileId(i, j, 0);
-
-				collideTiles[i][j] = "true".equals (map.getTileProperty(tileID,
-						"blocked", "false"));
-
-				if ("true".equals (map.getTileProperty (tileID, "spawn", "false")))
-					player.setPos(i * tileSize, j * tileSize);
-			}
-		}
-		//end world
+		player.playerAniRender (container, g);
+		
+		g.drawString ("ZeldaCraft v.CHoDE", 10, 30);
+		g.drawString ("playerX: " + player.getX(), 10, 50); 
+		g.drawString ("playerY: " + player.getY(), 10, 70);
+		g.drawString ("cameraX: " + player.getCameraX(), 10, 100);
+		g.drawString ("cameraY: " + player.getCameraY(), 10, 120);
 	}
-
 	
-	@Override
-	public void update (GameContainer gc, int delta) throws SlickException 
-	{
-		Input input = gc.getInput();
-
-		// start key input
-		if (input.isKeyDown(Input.KEY_W))
-		{
-			playerImage = new Image ("res/combatprototype/link_back.png");
-			player.moveY (-playerSpeed * delta);
-		}
-
-		if (input.isKeyDown(Input.KEY_A))
-		{
-			playerImage = new Image ("res/combatprototype/link_lside.png");
-			player.moveX (-playerSpeed * delta);
-		}
-
-		if (input.isKeyDown(Input.KEY_S)) 
-		{
-			playerImage = new Image ("res/combatprototype/link_front.png");
-			player.moveY (playerSpeed * delta);
-		}
-
-		if (input.isKeyDown(Input.KEY_D)) 
-		{
-			playerImage = new Image ("res/combatprototype/link_rside.png");
-			player.moveX (playerSpeed * delta);
-		}
-
-		if (input.isKeyDown(Input.KEY_ESCAPE))
-			System.exit(0);
-		// end key input
-
-		// WORLD SCROLLING CODE
-		// move the world view left if player's global x coordinate nears the right edge
-		worldX = (float) (SCREEN_WIDTH / 2 - player.playerX);
-		worldY = (float) (SCREEN_HEIGHT / 2 - player.playerY);
-
-		player.tick();
-	}
-
 	
-	public void render(GameContainer gc, Graphics g) throws SlickException 
-	{
-		//render the map efficiently -- draw only the tiles we need drawn
-		//warning: this is confusing!!
-		map.render (-tileSize + (int) (worldX % tileSize), -tileSize
-				+ (int) (worldY % tileSize), (int) (-worldX / tileSize) - 1,
-					(int) (-worldY / tileSize) - 1, SCREEN_WIDTH / tileSize + 2,
-						SCREEN_HEIGHT / tileSize + 2);
-
-		//draw overlay/title
-		g.drawString ("CombatPrototype v. 0.0", 10, 30);
-
-		//player coordinates
-		g.drawString ("playerX: " + player.posX(), 10, 50);
-		g.drawString ("playerY: " + player.posY(), 10, 70);
-
-		playerImage.draw (player.posX(), player.posY());
-	}
-
-	
+	/**********************************************
+	 * Main method for the game. Logistical use, executes main slick method.
+	 */
 	public static void main(String[] args) throws SlickException 
 	{
 		AppGameContainer app = new AppGameContainer (new CombatPrototype());
-
-		app.setDisplayMode (SCREEN_WIDTH, SCREEN_HEIGHT, false);
+		app.setDisplayMode (screenW, screenH, false);
 		app.start();
 	}
 

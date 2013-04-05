@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="80" height="50" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="stone" tilewidth="32" tileheight="32">
+  <image source="stone.png" width="32" height="32"/>
+ </tileset>
+ <tileset firstgid="2" name="cobble" tilewidth="32" tileheight="32">
+  <image source="cobble.png" width="32" height="32"/>
+  <tile id="0">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="Tile Layer 1" width="80" height="50">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAC+2XS5bFIAhENftf9Bu3x/CXgrSDGnS/KNQFonnGGM/V1ZVaEyhkvs/4mwOSg5aTlh86f08/RPbRHDJ+aA6n+8a7p7deHRXlk+KH9pjN8vLLZ3j57f1n8vsab08vevh9kaGVg/auNA1rOjD33Bt3v1P/08TR5taBIXf/+6/8VjZR/NZnIu/0Vdly86nlR/1tzU+6H/J7aRdTwo/yF8VPeh6d6n9PvTVnSCV+Fea9Ar/Ouvzy+FWYl2qS8rvs7Pwm81s3RfqI5Ie6m+3icsrmJ92H2hvdd1m1s+4jjYP2XI2fZl3mbHXg19FzFX6d2Em/DyP4aWaxmp8u/Ly95/HjWZPFj4oTwU7r53HGPnU+WflFxtT2XKV3brV7xFtfVsitM7+qqsTP8l5Eq9K3QOQ7LqoOa04rl2r8omJ7+a15vOUWwY96HlkHCz+Jl1P9R9Urk6E1LrcmY37f1nY5DzgP3FxH9qCmN9Fnv8YDyot0TxRXbX5Sfqh+4OYnMj/Nfqf4Va6FhyXlQ/os513KJqt/rMqIi6o3Up1zv/q+frQl3y+APgAA
+  </data>
+ </layer>
+</map>
