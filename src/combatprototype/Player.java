@@ -1,7 +1,6 @@
 package combatprototype;
 
 import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 
@@ -9,80 +8,85 @@ import org.newdawn.slick.SlickException;
 public class Player extends Entity
 {
 	private float cameraX; private float cameraY;
-	private float playerSpeed;
-	private String lastInput;
 	
 
-	public Player (int entityX, int entityY) 
+	public Player (int playerX, int playerY, int playerWidth, int playerHeight, int playerHealth, int playerDamage) 
 	{
-		super (entityX, entityY); //Sets all superclass fields
+		super (playerX, playerY, playerWidth, playerHeight, playerHealth, playerDamage); //Sets all superclass fields
 		
 		cameraX = screenW / 2; cameraY = screenH / 2;
-		playerSpeed = (float) .2;
+		setSpeed ((float) .2);
+	}
+	
+	
+	/*
+	 * General update method for the player. Will call all important functions pertaining to
+	 * and affecting the player.
+	 */
+	public void playerUpdate (GameContainer container, int delta, Map curMap, Entity mob) throws SlickException 
+	{
+		playerMovement (container, delta, curMap, mob); //player should move first in update (for collision)
+		entityMapCollision(curMap);
+		entityToEntityCollision(mob);
+		playerAttacked (mob);
 	}
 	
 	
 	/*
 	 * This method handles all player movements, inputs and adjusts the camera
 	 */
-	public void movementHandler (GameContainer container, int delta, Map curMap) throws SlickException 
+	public void playerMovement (GameContainer container, int delta, Map curMap, Entity mob) throws SlickException 
 	{
 		Input input = container.getInput();
 		
 		if (input.isKeyDown (Input.KEY_A)) //Move Left
 		{
-			setX (getX() - (playerSpeed * delta));
+			setX (getX() - (getSpeed() * delta));
 			getAniLeft().update(delta);
-			setLastInput ("left");
+			setLastDirection ("left");
 		}
 		if (input.isKeyDown (Input.KEY_D)) //Move Right
 		{
-			setX (getX() + (playerSpeed * delta));
+			setX (getX() + (getSpeed() * delta));
 			getAniRight().update(delta);
-			setLastInput ("right");
+			setLastDirection ("right");
 		}
 		if (input.isKeyDown (Input.KEY_S)) //Move down
 		{
-			setY (getY() + (playerSpeed * delta));
+			setY (getY() + (getSpeed() * delta));
 			getAniDown().update(delta);
-			setLastInput ("down");
+			setLastDirection ("down");
 		}
 		if (input.isKeyDown (Input.KEY_W)) //Move up
 		{
-			setY (getY() - (playerSpeed * delta));
+			setY (getY() - (getSpeed() * delta));
 			getAniUp().update(delta);
-			setLastInput ("up");
+			setLastDirection ("up");
 		}
 		if (input.isKeyDown (Input.KEY_ESCAPE))
 			System.exit(0);
-		
-		entityCollision (curMap);
 		
 		setCameraX (screenW / 2 - getX());
 		setCameraY (screenH / 2 - getY());
 	}
 	
 	
-	/*
-	 * Renders the appropriate player animation based on input;
-	 * Player will always appear to be in the middle of the screen
-	 */
-	public void playerAniRender (GameContainer container, Graphics g)
+	//player needs to take damage when colliding with a mob
+	//player needs to 'jump' away from entity when hit
+	//player needs a moment of invulnerability after hit
+	private void playerAttacked (Entity mob)
 	{
-		if (getLastInput() == null) //before any input, just draw the ani facing down
-			getAniDown().draw (screenW / 2, screenH / 2);
+		/*
+		//take damage when 'hit' by mob if hitboxes intersect
+		if (getHitBox().intersects (mob.getHitBox()))
+		{
+			setHealth (getHealth() - mob.getDamage());
+			
+			
+		}
+		*/
 		
-		if (getLastInput() == "left") //if last input was left, draw left ani
-			getAniLeft().draw (screenW / 2, screenH / 2);
-		
-		if (getLastInput() == "right") //if last input was right, draw right ani
-			getAniRight().draw (screenW / 2, screenH / 2);
-		
-		if (getLastInput() == "down") //if last input was down, draw down ani
-			getAniDown().draw (screenW / 2, screenH / 2);
-		
-		if (getLastInput() == "up") //if last input was up, draw up ani
-			getAniUp().draw (screenW / 2, screenH / 2);
+		//knock back a bit when hit by the mob
 	}
 	
 	
@@ -94,8 +98,6 @@ public class Player extends Entity
 	{
 		cameraX = newCameraX;
 	}
-	
-	
 	public float getCameraY()
 	{
 		return cameraY;
@@ -103,26 +105,6 @@ public class Player extends Entity
 	public void setCameraY (float newCameraY)
 	{
 		cameraY = newCameraY;
-	}
-	
-	
-	public float getPlayerSpeed()
-	{
-		return playerSpeed;
-	}
-	public void setPlayerSpeed (float newSpeed)
-	{
-		playerSpeed = newSpeed;
-	}
-	
-	
-	public String getLastInput()
-	{
-		return lastInput;
-	}
-	public void setLastInput (String input)
-	{
-		lastInput = input;
 	}
 	
 }
